@@ -38,6 +38,7 @@ require "pstore"
 # 
 #   TimedCache.new(:type => :file, :filename => "my_cache.db")
 # 
+# Note that objects that cannot be marshalled (e.g. a Proc) can't be stored using the file-based cache.
 class TimedCache
   attr_reader :default_timeout
   
