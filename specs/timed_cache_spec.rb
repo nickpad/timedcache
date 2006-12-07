@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), "../lib/timed_cache")
+require File.join(File.dirname(__FILE__), "../lib/timedcache")
 
 $filename = File.join(File.dirname(__FILE__), "specs.db")
 
