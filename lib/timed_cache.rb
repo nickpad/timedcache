@@ -1,5 +1,6 @@
 require "pstore"
-
+# == TimedCache
+# 
 # TimedCache implements a cache in which you can place objects
 # and specify a timeout value.
 # 
@@ -10,12 +11,14 @@ require "pstore"
 # e.g.:
 #   cache = TimedCache.new
 #   cache.put :my_object_key, "Expensive data", 10 # => "Expensive data"
+#   
 #   cache.get :my_object_key # => "Expensive data"
+#   cache[:my_object_key]    # => "Expensive data"
 # 
 # ... 10 seconds later:
 #   cache.get :my_object_key # => nil
 # 
-# = Default timeout
+# === Default timeout
 # 
 # When creating a new TimedCache, a default timeout value can be set. This value
 # will be used for each object added to the cache, unless a different timeout value
@@ -26,7 +29,7 @@ require "pstore"
 #   cache = TimedCache.new(:default_timeout => 120)
 #   cache.default_timeout # => 120
 # 
-# = File-based cache
+# === File-based cache
 # 
 # By default, TimedCache will use an in-memory store. A file-based store (using the 
 # PStore library) can also be used.
@@ -38,31 +41,52 @@ require "pstore"
 class TimedCache
   attr_reader :default_timeout
   
+  # Create a new TimedCache. Available options are:
+  # <tt>type</tt>:: <tt>:memory</tt> or <tt>:file</tt> (defaults to <tt>:memory</tt>).
+  # <tt>default_timeout</tt>:: Timeout to use if none is specified when adding an object to the cache.
+  # <tt>filename</tt>:: Must be specified when using the <tt>:file</tt> type store.
+  # 
+  # e.g.:
+  #   TimedCache.new(:type => :file, :filename => "cache.db")
   def initialize(opts = {})
     opts[:type] ||= :memory
     @default_timeout = opts[:default_timeout] || 60
     @store = new_store(opts)
   end
   
+  # Add an object to the cache. e.g.:
+  #   cache.put(:session_id, 12345)
+  # 
+  # The third parameter is an optional timeout value. If not specified, the 
+  # <tt>:default_timeout</tt> for this TimedCache will be used instead.
   def put(key, value, timeout = @default_timeout)
     @store.put(key, value, timeout)
   end
   
+  # Retrieve the object which the given +key+. If the object has expired or
+  # is not present, +nil+ is returned.
   def get(key)
     @store.get(key)
   end
   
+  # Add to the cache using a hash-like syntax. e.g.:
+  #   cache[:name] = "Nick"
+  # 
+  # Note that adding to the cache this way does not allow you to specify timeout values
+  # on a per-object basis.
   def []=(key, value)
     put(key, value)
   end
   
+  # Fetch objects using the hash syntax. e.g.:
+  #   cache[:name] # => "Nick"
   def [](key)
     get(key)
   end
-    
+  
   protected
   
-  def new_store(options)
+  def new_store(options) #:nodoc:
     self.class.const_get(options[:type].to_s.capitalize + "Store").new(options)
   end
   
