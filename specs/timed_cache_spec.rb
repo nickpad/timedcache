@@ -36,7 +36,7 @@ context "Adding and retrieving objects from the cache" do
   end
   
   specify "If no object matching the given key is found, nil should be returned" do
-    @caches.each do |cache|    
+    @caches.each do |cache|
       cache.get(:my_nonexistant_object).should_equal nil
     end
   end

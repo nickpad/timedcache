@@ -107,17 +107,17 @@ class TimedCache
     end
     
     def put(key, value, timeout)
-      @cache[key.to_s.intern] = ObjectContainer.new(value, timeout)
+      @cache[key] = ObjectContainer.new(value, timeout)
       # Return just the given value, so that references to the
       # ObjectStore instance can't be held outside this TimedCache:
       value
     end
     
     def get(key)
-      if object_store = @cache[key.to_s.intern]
+      if object_store = @cache[key]
         if object_store.expired?
           # Free up memory:
-          @cache[key.to_s.intern] = nil
+          @cache[key] = nil
         else
           object_store.object
         end
@@ -137,7 +137,7 @@ class TimedCache
     
     def put(key, value, timeout = nil)
       @cache.transaction do
-        @cache[key.to_s.intern] = ObjectContainer.new(value, timeout)
+        @cache[key] = ObjectContainer.new(value, timeout)
       end
       
       # Return just the given value, so that references to the
@@ -147,16 +147,16 @@ class TimedCache
     
     def get(key)
       @cache.transaction do
-        if object_store = @cache[key.to_s.intern]
+        if object_store = @cache[key]
           if object_store.expired?
             # Free up memory:
-            @cache[key.to_s.intern] = nil
+            @cache[key] = nil
           else
             object_store.object
           end
         end
       end
-    end    
+    end
   end
   
   class ObjectContainer #:nodoc:

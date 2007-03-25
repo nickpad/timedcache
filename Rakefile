@@ -38,4 +38,6 @@ EOF
 end
 
 Rake::GemPackageTask.new(gemspec) do |pkg|
+  pkg.need_tar = true
+  pkg.need_zip = true
 end
