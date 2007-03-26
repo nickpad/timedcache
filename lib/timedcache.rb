@@ -41,7 +41,7 @@ require "pstore"
 # 
 # Note that objects that cannot be marshalled (e.g. a Proc) can't be stored using the file-based cache.
 class TimedCache
-  Version = "0.1"
+  Version = "0.1.1"
   
   attr_reader :default_timeout
   
