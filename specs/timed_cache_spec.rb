@@ -28,6 +28,19 @@ context "Adding and retrieving objects from the cache" do
     end
   end
   
+  specify "String and symbol keys are not treated as equivalent" do
+    @caches.each do |cache|
+      cache[:symbolkey]  = "Referenced by symbol"
+      cache["stringkey"] = "Referenced by string"
+      
+      cache[:symbolkey].should_equal "Referenced by symbol"
+      cache["symbolkey"].should_equal nil
+      
+      cache["stringkey"].should_equal "Referenced by string"
+      cache[:stringkey].should_equal nil
+    end
+  end
+  
   specify "After the specified timeout value has elapsed, nil should be returned" do
     @caches.each do |cache|    
       cache.put(:myobject, "This needs caching", 0).should_equal "This needs caching"
