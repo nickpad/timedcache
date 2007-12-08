@@ -1,4 +1,5 @@
 require "pstore"
+require "monitor"
 
 # == TimedCache
 # 
@@ -39,9 +40,13 @@ require "pstore"
 # 
 #   TimedCache.new(:type => :file, :filename => "my_cache.db")
 # 
+# The file-based cache makes it possible to easily share a cache between several ruby 
+# processes. However when using the cache in this way, you will probably want to update the 
+# cache by passing a block to the TimedCache#get method (see below for details).
+# 
 # Note that objects that cannot be marshalled (e.g. a Proc) can't be stored using the file-based cache.
 class TimedCache
-  Version = "0.1.1"
+  Version = "0.2"
   
   attr_reader :default_timeout
   
@@ -56,6 +61,7 @@ class TimedCache
     opts[:type] ||= :memory
     @default_timeout = opts[:default_timeout] || 60
     @store = new_store(opts)
+    @store.extend(MonitorMixin)
   end
   
   # Add an object to the cache. e.g.:
@@ -64,13 +70,31 @@ class TimedCache
   # The third parameter is an optional timeout value. If not specified, the 
   # <tt>:default_timeout</tt> for this TimedCache will be used instead.
   def put(key, value, timeout = @default_timeout)
-    @store.put(key, value, timeout)
+    @store.synchronize do
+      @store.put(key, value, timeout) unless value.nil?
+    end
   end
   
   # Retrieve the object which the given +key+. If the object has expired or
   # is not present, +nil+ is returned.
-  def get(key)
-    @store.get(key)
+  # 
+  # Optionally, a block can be given. The result of evaluating the block will
+  # be substituted as the cache value, if the cache has expired. This is particularly
+  # useful when using a file-based cache from multiple ruby processes, as it
+  # will prevent your application from making multiple simultaneous attempts to 
+  # re-populate the cache.
+  # 
+  # e.g.:
+  # 
+  #   cache.get("slow_database_query") do
+  #     MyDatabase.query("SELECT * FROM bigtable...")
+  #   end
+  # 
+  # The block syntax can also be used with the in-memory cache.
+  def get(key, &block)
+    @store.synchronize do
+      @store.get(key, &block)
+    end
   end
   
   # Add to the cache using a hash-like syntax. e.g.:
@@ -91,18 +115,52 @@ class TimedCache
   protected
   
   def new_store(options) #:nodoc:
-    self.class.const_get(options[:type].to_s.capitalize + "Store").new(options)
+    self.class.const_get(options[:type].to_s.capitalize + "Store").new(self, options)
   end
   
   class Store #:nodoc:
-    def initialize(options)
-      @options = options
+    def initialize(timed_cache, options)
+      @timed_cache = timed_cache
+      @options     = options
+    end
+    
+    protected
+    
+    def generic_get(key, timeout, callback, fetch_key = lambda {|k| @cache[key]})
+      if object_store = fetch_key.call(key)
+        if object_store.expired?
+          if callback
+            run_callback_and_add_to_cache(key, object_store, callback, timeout)
+          else
+            # Free up memory:
+            @cache[key] = nil
+          end
+        else
+          object_store.object
+        end
+      elsif callback
+        run_callback_and_add_to_cache(key, object_store, callback, timeout)
+      end
+    end
+    
+    def run_callback_and_add_to_cache(key, object_store, callback, timeout)
+      object_store.no_expiry! if object_store
+      
+      begin
+        result = callback.call
+      rescue
+        object_store.reset_expiry! if object_store
+        raise
+      end
+      
+      @timed_cache.put(key, result, timeout)
+      result
     end
   end
   
   class MemoryStore < Store #:nodoc:
-    def initialize(options)
-      super
+    def initialize(*args)
+      super(*args)
       @cache = Hash.new
     end
     
@@ -113,15 +171,8 @@ class TimedCache
       value
     end
     
-    def get(key)
-      if object_store = @cache[key]
-        if object_store.expired?
-          # Free up memory:
-          @cache[key] = nil
-        else
-          object_store.object
-        end
-      end
+    def get(key, timeout = @timed_cache.default_timeout, &block)
+      generic_get(key, timeout, block)
     end
   end
   
@@ -135,41 +186,46 @@ class TimedCache
       @cache = PStore.new(filename)
     end
     
-    def put(key, value, timeout = nil)
-      @cache.transaction do
-        @cache[key] = ObjectContainer.new(value, timeout)
-      end
+    def put(key, value, timeout)
+      @cache.transaction { @cache[key] = ObjectContainer.new(value, timeout) }
       
       # Return just the given value, so that references to the
       # ObjectStore instance can't be held outside this TimedCache:
       value
     end
     
-    def get(key)
-      @cache.transaction do
-        if object_store = @cache[key]
-          if object_store.expired?
-            # Free up memory:
-            @cache[key] = nil
-          else
-            object_store.object
-          end
-        end
+    def get(key, timeout = @timed_cache.default_timeout, &block)
+      if block
+        generic_get(key, timeout, block, lambda {|k| @cache.transaction { @cache[key] } })
+      else
+        @cache.transaction { generic_get(key, timeout, block) }
       end
     end
   end
   
   class ObjectContainer #:nodoc:
-    attr_reader :object
+    attr_accessor :object
     
     def initialize(object, timeout)
       @created_at = Time.now.utc
       @timeout    = timeout
       @object     = object
+      @frozen     = false
     end
     
     def expired?
-      (Time.now.utc - @timeout) > @created_at
+      if @frozen: false
+      else
+        (Time.now.utc - @timeout) > @created_at
+      end
+    end
+    
+    def no_expiry!
+      @frozen = true
+    end
+    
+    def reset_expiry!
+      @frozen = false
     end
   end
 end
