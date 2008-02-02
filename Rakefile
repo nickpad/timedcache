@@ -7,7 +7,7 @@ require "rake/gempackagetask"
 Rake::RDocTask.new { |rdoc|
   rdoc.rdoc_dir = "doc"
   rdoc.title    = "TimedCache Documentation"
-  rdoc.rdoc_files.include("MIT_LICENSE", "lib/*.rb")
+  rdoc.rdoc_files.include("MIT_LICENSE", "lib/timedcache.rb")
   rdoc.options << "--line-numbers" << "--inline-source"
   rdoc.main = "TimedCache"
 }
@@ -28,13 +28,14 @@ If you attempt to retrieve the object within the specified timeout
 period, the object will be returned. If the timeout period has elapsed,
 the TimedCache will return nil.
 EOF
-  s.files            = FileList["{doc,lib,specs}/*"].to_a
-  s.require_path     = "lib"
-  s.autorequire      = "timedcache"
-  s.has_rdoc         = true
-  s.extra_rdoc_files = ["MIT_LICENSE"]
-  s.rdoc_options.concat(["--main",  "TimedCache", "--line-numbers", "--inline-source"])
+  s.files             = FileList["{doc,lib,specs}/*"].to_a
+  s.require_paths     = "lib"
+  s.autorequire       = "timedcache"
+  s.has_rdoc          = true
+  s.extra_rdoc_files  = ["MIT_LICENSE"]
   s.rubyforge_project = "timedcache"
+  
+  s.rdoc_options.concat(["--main",  "TimedCache", "--line-numbers", "--inline-source"])
 end
 
 Rake::GemPackageTask.new(gemspec) do |pkg|
