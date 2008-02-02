@@ -29,7 +29,7 @@ the TimedCache will return nil.
 
 == INSTALL:
 
-* sudo gem timedcache
+  sudo gem timedcache
 
 == LICENSE:
 
