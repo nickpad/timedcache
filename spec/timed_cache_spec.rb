@@ -62,7 +62,7 @@ describe "Adding and retrieving objects from the cache" do
   end
   
   it "Passing a block to the TimedCache#get method should substitute the " +
-          "result of the block as the value for the given key" do
+     "result of the block as the value for the given key" do
     @caches.each do |cache|
       cache.put("block_test", 1984, 0)
       cache.get("block_test") { 2001 }.should == 2001
@@ -71,7 +71,7 @@ describe "Adding and retrieving objects from the cache" do
   end
   
   it "Passing a block to TimedCache#get should add the result of the callback " + 
-          "when there is no existing value for the key given" do
+     "when there is no existing value for the key given" do
     @caches.each do |cache|
       cache.get("new_key_with_block").should == nil
       cache.get("new_key_with_block") { "Nicholas" }.should == "Nicholas"
@@ -82,13 +82,13 @@ end
 describe "Specifying a default timeout" do
   it "Should be able to it a default timeout when creating a TimedCache" do
     cache = TimedCache.new(:default_timeout => 20)
-    cache.should be_kind_of TimedCache
+    cache.should be_kind_of(TimedCache)
     cache.default_timeout.should == 20
   end
   
   it "If no default timeout is set, 60 seconds should be used" do
     cache = TimedCache.new
-    cache.should be_kind_of TimedCache
+    cache.should be_kind_of(TimedCache)
     cache.default_timeout.should == 60
   end
   
