@@ -46,7 +46,7 @@ require "monitor"
 # 
 # Note that objects that cannot be marshalled (e.g. a Proc) can't be stored using the file-based cache.
 class TimedCache
-  Version = "0.2"
+  VERSION = "0.2"
   
   attr_reader :default_timeout
   

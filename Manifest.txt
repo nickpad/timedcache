@@ -1,0 +1,8 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+lib/timed_cache.rb
+lib/timedcache.rb
+misc/thread_test.rb
+spec/timed_cache_spec.rb

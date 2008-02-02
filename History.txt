@@ -1,0 +1,13 @@
+=== 0.2 / 2008-02-02
+
+* Updated specs to be compatible with the latest rSpec release.
+
+* Made thread safe by synchronizing all access to the @store instance
+  variable used by a TimedCache instance.
+
+* Altered the API so that strings and symbols are not treated as equivalent keys.
+  This is in order to prevent unintentional memory leaks.
+
+=== 0.1 / 2006-12-07
+
+* Initial release.
