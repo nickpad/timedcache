@@ -11,7 +11,7 @@ If you attempt to retrieve the object within the specified timeout
 period, the object will be returned. If the timeout period has elapsed,
 the TimedCache will return nil.
 
-== FEATURES/PROBLEMS:
+== FEATURES:
 
 * Memory or file-based data stores available.
 * Thread safety.
@@ -30,6 +30,13 @@ the TimedCache will return nil.
 == INSTALL:
 
   sudo gem timedcache
+
+== SOURCE:
+
+You can browse the source control history or get a copy of the git
+repository by going to:
+
+* http://github.com/nickpad/timedcache/tree/master
 
 == LICENSE:
 
