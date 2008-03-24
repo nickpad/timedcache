@@ -96,7 +96,7 @@ describe "Specifying a default timeout" do
     cache = TimedCache.new(:default_timeout => 20)
     cache.default_timeout.should == 20
     cache.put("alternative_timeout", "2 minutes", 120)
-    cache.instance_variable_get(:@store).instance_variable_get(
-      :@cache)["alternative_timeout"].instance_variable_get(:@timeout).should == 120
+    cache.instance_variable_get(:@store).instance_variable_get(:@cache)["alternative_timeout"].
+    instance_variable_get(:@timeout).should == 120
   end
 end
