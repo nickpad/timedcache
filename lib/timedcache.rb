@@ -79,10 +79,7 @@ class TimedCache
   # is not present, +nil+ is returned.
   # 
   # Optionally, a block can be given. The result of evaluating the block will
-  # be substituted as the cache value, if the cache has expired. This is particularly
-  # useful when using a file-based cache from multiple ruby processes, as it
-  # will prevent your application from making multiple simultaneous attempts to 
-  # re-populate the cache.
+  # be substituted as the cache value, if the cache has expired.
   # 
   # e.g.:
   # 
