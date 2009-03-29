@@ -46,7 +46,7 @@ require "monitor"
 # 
 # Note that objects that cannot be marshalled (e.g. a Proc) can't be stored using the file-based cache.
 class TimedCache
-  VERSION = "0.2"
+  VERSION = "0.3"
   
   attr_reader :default_timeout
   
@@ -211,7 +211,8 @@ class TimedCache
     end
     
     def expired?
-      if @frozen: false
+      if @frozen
+        false
       else
         (Time.now.utc - @timeout) > @created_at
       end

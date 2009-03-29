@@ -3,13 +3,13 @@ require File.join(File.dirname(__FILE__), "../lib/timedcache")
 $filename = File.join(File.dirname(__FILE__), "specs.db")
 
 describe "Adding and retrieving objects from the cache" do
-  setup do
+  before(:each) do
     @memory_cache = TimedCache.new
     @file_cache   = TimedCache.new(:type => :file, :filename => $filename)
     @caches       = [@memory_cache, @file_cache]
   end
   
-  teardown do
+  after do
     File.delete($filename)
   end
   
