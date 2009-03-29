@@ -42,7 +42,7 @@ repository by going to:
 
 (The MIT License)
 
-Copyright (c) 2008 Nicholas Dainty
+Copyright (c) 2008, 2009 Nicholas Dainty
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
