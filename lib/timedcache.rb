@@ -41,8 +41,7 @@ require "monitor"
 #   TimedCache.new(:type => :file, :filename => "my_cache.db")
 # 
 # The file-based cache makes it possible to easily share a cache between several ruby 
-# processes. However when using the cache in this way, you will probably want to update the 
-# cache by passing a block to the TimedCache#get method (see below for details).
+# processes.
 # 
 # Note that objects that cannot be marshalled (e.g. a Proc) can't be stored using the file-based cache.
 class TimedCache
@@ -87,7 +86,6 @@ class TimedCache
   #     MyDatabase.query("SELECT * FROM bigtable...")
   #   end
   # 
-  # The block syntax can also be used with the in-memory cache.
   def get(key, &block)
     @store.synchronize do
       @store.get(key, &block)
