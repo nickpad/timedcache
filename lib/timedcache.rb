@@ -73,6 +73,7 @@ class TimedCache
       @store.put(key, value, timeout) unless value.nil?
     end
   end
+  alias :set :put
 
   # Retrieve the object which the given +key+. If the object has expired or
   # is not present, +nil+ is returned.

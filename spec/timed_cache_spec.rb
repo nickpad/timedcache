@@ -19,6 +19,12 @@ describe "Adding and retrieving objects from the cache" do
     end
   end
 
+  it "Can add an object to the cache, specifying a timeout value using the set method" do
+    @caches.each do |cache|
+      cache.set(:myobject, "This needs caching", 10).should == "This needs caching"
+    end
+  end
+
   it "Cache should hold separate values for each key" do
     @caches.each do |cache|
       cache.put(:myobject, "This needs caching", 10).should == "This needs caching"
