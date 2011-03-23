@@ -1,16 +1,31 @@
-# -*- ruby -*-
+$LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 
 require 'rubygems'
-require 'hoe'
-require './lib/timedcache.rb'
+require 'rake/gempackagetask'
+require 'rake/testtask'
 
-Hoe.new('timedcache', TimedCache::VERSION) do |p|
-  p.rubyforge_name = 'timedcache'
-  p.author = 'Nicholas Dainty'
-  p.email = 'nick@npad.co.uk'
-  p.summary = 'A very simple time-based object cache.'
-  p.description = p.paragraphs_of('README.txt', 3..4).join("\n\n")
-  p.url = p.paragraphs_of('README.txt', 0).first.split(/\n/)[1..-1]
-  p.changes = p.paragraphs_of('History.txt', 0..1).join("\n\n")
-  p.remote_rdoc_dir = '' # Place RDocs on project home page.
+# ============================================================================
+
+# If you're using this file as a template to set up a new gem, this constant
+# is the only thing you should need to change in the Rakefile:
+GEM_NAME = 'timedcache'
+
+# ============================================================================
+
+Rake::TestTask.new do |t|
+  t.libs << 'test'
 end
+
+# ============================================================================
+# = Gem package and release stuff.
+# ============================================================================
+
+spec = eval(File.read(File.join(File.dirname(__FILE__), "#{GEM_NAME}.gemspec")))
+
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.need_tar = true
+end
+
+# ============================================================================
+
+task :default => [:test]
