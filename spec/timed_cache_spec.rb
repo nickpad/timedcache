@@ -25,6 +25,15 @@ describe "Adding and retrieving objects from the cache" do
     end
   end
 
+  it "Can remove objects from the cache" do
+    @caches.each do |cache|
+      cache.put(:myobject, "This needs caching", 10)
+      cache.get(:myobject).should == "This needs caching"
+      cache.del(:myobject)
+      cache.get(:myobject).should == nil
+    end
+  end
+
   it "Cache should hold separate values for each key" do
     @caches.each do |cache|
       cache.put(:myobject, "This needs caching", 10).should == "This needs caching"

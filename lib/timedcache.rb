@@ -75,6 +75,13 @@ class TimedCache
   end
   alias :set :put
 
+  # Remove an object from the cache. e.g.:
+  #   cache.del(:session_id)
+  def delete(key)
+    @store.delete(key)
+  end
+  alias :del :delete
+
   # Retrieve the object which the given +key+. If the object has expired or
   # is not present, +nil+ is returned.
   #
@@ -170,6 +177,10 @@ class TimedCache
     def get(key, timeout = @timed_cache.default_timeout, &block)
       generic_get(key, timeout, block)
     end
+
+    def delete(key)
+      @cache.delete(key)
+    end
   end
 
   class FileStore < Store #:nodoc:
@@ -196,6 +207,10 @@ class TimedCache
       else
         @cache.transaction { generic_get(key, timeout, block) }
       end
+    end
+
+    def delete(key)
+      @cache.transaction { @cache.delete(key) }
     end
   end
 
